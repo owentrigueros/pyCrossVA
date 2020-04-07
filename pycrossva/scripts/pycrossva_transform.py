@@ -2,12 +2,14 @@ import click
 
 from datetime import datetime as dt
 import os
+import numpy as np
+import pandas as pd
 
 from pycrossva.transform import transform, SUPPORTED_INPUTS, SUPPORTED_OUTPUTS
 
 
 @click.command()
-@click.argument("input_type",
+@click.argument('input_type',
                 nargs=1,
                 type=click.Choice(SUPPORTED_INPUTS + ['AUTODETECT']),
                 required=True)
@@ -28,8 +30,14 @@ from pycrossva.transform import transform, SUPPORTED_INPUTS, SUPPORTED_OUTPUTS
               required=False)
 @click.option('--silent', '-s', is_flag=True, default=False,
               help="Silence console output")
+@click.option('--id_name',
+              help="Input's column name for IDs",
+              nargs=1,
+              default=None,
+              type=str,
+              required=False)
 # @click.option('--preserve-na/--fill-na', default=False)
-def main(input_type, output_type, src, dst, silent):
+def main(input_type, output_type, src, dst, silent, id_name):
     """This is a wrapper for the `transform` python function in the pycrossva
     package so that it can be run from the command line. Once you have installed
     pycrossva, you can run this from the command line in order to process
@@ -79,8 +87,21 @@ def main(input_type, output_type, src, dst, silent):
             input_type = detect_format(output_type, input_data)
             click.echo(f"Detected input type: {input_type}")
 
+        input_data = input_data.replace('DK', np.nan)
+        input_data = input_data.replace('dk', np.nan)
+        input_data.iloc[:,18:].replace(99, np.nan, inplace=True)
+        input_data.iloc[:,18:].replace(88, np.nan, inplace=True)
+
         result = transform((input_type, output_type), input_data,
-                           verbose=verbosity)
+                           verbose=verbosity,
+                           result_values={"Present": 'y', "Absent": 'n', "NA": '.'})
+
+
+        if id_name is not None:
+            ID = input_data[id_name].copy()
+            result = pd.concat([ID, result], axis=1)
+            result.rename(columns={id_name: 'ID'}, inplace=True)
+
         original_name = input_file.split(os.path.sep)[-1].split(".")[0]
         default_name = "_".join([output_type, "from", original_name,
                                  dt.today().strftime("%m%d%y")]) + ".csv"
@@ -100,7 +121,10 @@ def main(input_type, output_type, src, dst, silent):
             final_dst = dst + "_" + str(i + 1)
 
         if result is not None:
-            result.to_csv(final_dst)
+            if id_name is not None:
+                result.to_csv(final_dst, index=False)
+            else:
+                result.to_csv(final_dst, index_label='ID')
             if not silent:
                 click.echo(
                     f"{input_type} '{input_file}' data prepared for {output_type} and written to csv at '{final_dst}'")

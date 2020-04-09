@@ -31,7 +31,7 @@ CrossVA
 
 CrossVA is a python package for transforming verbal autopsy data collected using
 the 2016 WHO VA instrument (v1.5.1, or v1.4.1), 2012 WHO VA instrument, and
-the PHRMC short questionnaire into a format suitable for openVA.
+the PHMRC short questionnaire into a format suitable for openVA.
 
 The flagship function of this package is the transform() function, which
 prepares raw data for use in a verbal autopsy algorithm. The user can either
@@ -146,7 +146,7 @@ Inputs
 * 2016 WHO Questionnaire from ODK export, v1.5.1
 * 2016 WHO Questionnaire from ODK export, v1.4.1
 * 2012 WHO Questionnaire from ODK export
-* PHRMC Shortened Questionnaire
+* PHMRC Shortened Questionnaire
 
 Outputs
 ^^^^^^^^

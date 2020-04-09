@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(name='pycrossva',
       version='0.5a',
-      description='prepare data from WHO and PHRMC instruments for verbal autopsy algorithms',
+      description='prepare data from WHO and PHMRC instruments for verbal autopsy algorithms',
       url='https://github.com/verbal-autopsy-software/pyCrossVA',
       license='GNU General Public License v3.0',
       packages=['pycrossva'],
